@@ -1,0 +1,24 @@
+common:
+  run_mode: release
+  profiling: false
+logging:
+  level: info
+http_server:
+  host: 0.0.0.0
+  port: 9500
+  read_timeout: 60
+  write_timeout: 60
+database:
+  host: 127.0.0.1
+  port: 5432
+  user: mikasa
+  pass: mikasa
+  name: titan
+  max_open_connection: 2
+  max_idle_connection: 1
+  max_life_time: 21600
+jwt:
+  # jwt token, should be changed in production env
+  secret: 348eee0c-4c3a-4ddc-a054-a563d8f9396b
+  # jwt token expire time in seconds
+  timeout: 3600
