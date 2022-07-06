@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/fs714/go-proj-boot/cmd/config"
 	"github.com/fs714/go-proj-boot/cmd/version"
 	"github.com/fs714/go-proj-boot/global"
 	"github.com/spf13/cobra"
@@ -12,6 +13,7 @@ import (
 )
 
 var cfgPath string
+var logLevel string
 
 var rootCmd = &cobra.Command{
 	Use:     "go-proj-boot",
@@ -32,38 +34,47 @@ func Execute() {
 }
 
 func init() {
+	global.Viper = viper.New()
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVarP(&cfgPath, "config", "c", "", "config file (default is $HOME/conf/go-proj-boot.yml)")
-	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
+	rootCmd.PersistentFlags().StringVarP(&cfgPath, "config", "c", "", "config file path")
+
+	rootCmd.PersistentFlags().StringVarP(&logLevel, "log-level", "", "info", "Set logging level, could be info or debug")
+	global.Viper.BindPFlag("logging.level", rootCmd.PersistentFlags().Lookup("log-level"))
+	global.Viper.BindEnv("logging.level", "LOGGING_LEVEL")
 
 	rootCmd.AddCommand(version.StartCmd)
+	rootCmd.AddCommand(config.StartCmd)
 }
 
 func initConfig() {
 	if cfgPath != "" {
-		viper.SetConfigFile(cfgPath)
-		viper.SetConfigType("yaml")
+		global.Viper.SetConfigFile(cfgPath)
+		global.Viper.SetConfigType("yaml")
 	} else {
-		viper.SetConfigName("go-proj-boot")
-		viper.SetConfigType("yaml")
+		global.Viper.SetConfigName("go-proj-boot")
+		global.Viper.SetConfigType("yaml")
 
 		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 		if err != nil {
 			fmt.Printf("failed to get current path with err: %s\n", err.Error())
 		}
 
-		viper.AddConfigPath(dir + "/conf")
-		viper.AddConfigPath(".")
-		viper.AddConfigPath("./conf")
-		viper.AddConfigPath("/etc/go-proj-boot")
+		global.Viper.AddConfigPath(dir + "/conf")
+		global.Viper.AddConfigPath(".")
+		global.Viper.AddConfigPath("./conf")
+		global.Viper.AddConfigPath("/etc/go-proj-boot")
 	}
 
-	viper.AutomaticEnv()
-
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Printf("using config file: %s\n", viper.ConfigFileUsed())
-	} else {
+	err := global.Viper.ReadInConfig()
+	if err != nil {
 		fmt.Printf("failed to read configuration file with err: %s\n", err.Error())
+		os.Exit(1)
+	}
+
+	err = global.Viper.Unmarshal(&global.Config)
+	if err != nil {
+		fmt.Printf("failed to unmarshal configuration to structure with err: %s\n", err.Error())
+		os.Exit(1)
 	}
 }
