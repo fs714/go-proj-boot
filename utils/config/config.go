@@ -1,22 +1,29 @@
-package global
+package config
 
-type configCommon struct {
+import "github.com/spf13/viper"
+
+var (
+	Viper  *viper.Viper
+	Config config
+)
+
+type common struct {
 	RunMode   string `mapstructure:"run_mode"`
 	Profiling bool   `mapstructure:"profiling"`
 }
 
-type configLogging struct {
+type logging struct {
 	Level string `mapstructure:"level"`
 }
 
-type configHttpServer struct {
+type httpServer struct {
 	Host         string `mapstructure:"host"`
 	Port         string `mapstructure:"port"`
 	ReadTimeout  int    `mapstructure:"read_timeout"`
 	WriteTimeout int    `mapstructure:"write_timeout"`
 }
 
-type configDatabase struct {
+type database struct {
 	Host              string `mapstructure:"host"`
 	Port              string `mapstructure:"port"`
 	User              string `mapstructure:"user"`
@@ -27,15 +34,15 @@ type configDatabase struct {
 	MaxLifeTime       int    `mapstructure:"max_life_time"`
 }
 
-type configJwt struct {
+type jwt struct {
 	Secret  string `mapstructure:"secret"`
 	Timeout int    `mapstructure:"timeout"`
 }
 
 type config struct {
-	Common     configCommon     `mapstructure:"common"`
-	Logging    configLogging    `mapstructure:"logging"`
-	HttpServer configHttpServer `mapstructure:"http_server"`
-	Database   configDatabase   `mapstructure:"database"`
-	Jwt        configJwt        `mapstructure:"jwt"`
+	Common     common     `mapstructure:"common"`
+	Logging    logging    `mapstructure:"logging"`
+	HttpServer httpServer `mapstructure:"http_server"`
+	Database   database   `mapstructure:"database"`
+	Jwt        jwt        `mapstructure:"jwt"`
 }

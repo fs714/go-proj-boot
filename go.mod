@@ -3,6 +3,7 @@ module github.com/fs714/go-proj-boot
 go 1.18
 
 require (
+	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
 )
