@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/fs714/go-proj-boot/utils/config"
+	"github.com/fs714/go-proj-boot/pkg/utils/config"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

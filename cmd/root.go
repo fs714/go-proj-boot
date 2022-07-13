@@ -7,8 +7,8 @@ import (
 
 	"github.com/fs714/go-proj-boot/cmd/show_config"
 	"github.com/fs714/go-proj-boot/cmd/show_version"
-	"github.com/fs714/go-proj-boot/utils/config"
-	"github.com/fs714/go-proj-boot/utils/version"
+	"github.com/fs714/go-proj-boot/pkg/utils/config"
+	"github.com/fs714/go-proj-boot/pkg/utils/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

@@ -3,7 +3,7 @@ package show_version
 import (
 	"fmt"
 
-	"github.com/fs714/go-proj-boot/utils/version"
+	"github.com/fs714/go-proj-boot/pkg/utils/version"
 	"github.com/spf13/cobra"
 )
 
