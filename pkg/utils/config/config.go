@@ -13,7 +13,13 @@ type common struct {
 }
 
 type logging struct {
-	Level string `mapstructure:"level"`
+	File       string `mapstructure:"file"`
+	Level      string `mapstructure:"level"`
+	Format     string `mapstructure:"format"`
+	MaxSize    int    `mapstructure:"max_size"`
+	MaxAge     int    `mapstructure:"max_age"`
+	MaxBackups int    `mapstructure:"max_backups"`
+	Compress   bool   `mapstructure:"compress"`
 }
 
 type httpServer struct {

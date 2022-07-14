@@ -2,7 +2,19 @@ common:
   run_mode: release
   profiling: false
 logging:
+  file: /var/log/go-proj-boot/go-proj-boot.log
+  # log level could be debug, info, warn or error
   level: info
+  # log format could be console or json
+  format: console
+  # the maximum size in megabytes of the log file before it gets rotated
+  max_size: 10
+  # the maximum number of days to retain old log files based on the timestamp encoded in their filename
+  max_age: 16
+  # the maximum number of old log files to retain
+  max_backups: 16
+  # the rotated log files should be compressed or not
+  compress: true
 http_server:
   host: 0.0.0.0
   port: 9500

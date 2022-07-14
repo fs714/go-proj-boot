@@ -3,6 +3,7 @@ package log
 import (
 	"io"
 	"os"
+	"strings"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -87,6 +88,17 @@ const (
 	JsonFormat
 )
 
+func ParseFormat(format string) Format {
+	switch {
+	case strings.ToLower(format) == "console":
+		return ConsoleFormat
+	case strings.ToLower(format) == "json":
+		return JsonFormat
+	default:
+		return ConsoleFormat
+	}
+}
+
 type Level = zapcore.Level
 
 const (
@@ -98,6 +110,27 @@ const (
 	PanicLevel  Level = zap.PanicLevel
 	FatalLevel  Level = zap.FatalLevel
 )
+
+func ParseLevel(level string) Level {
+	switch {
+	case strings.ToLower(level) == "debug":
+		return DebugLevel
+	case strings.ToLower(level) == "info":
+		return InfoLevel
+	case strings.ToLower(level) == "warn":
+		return WarnLevel
+	case strings.ToLower(level) == "error":
+		return ErrorLevel
+	case strings.ToLower(level) == "dpanic":
+		return DPanicLevel
+	case strings.ToLower(level) == "panic":
+		return PanicLevel
+	case strings.ToLower(level) == "fatal":
+		return FatalLevel
+	default:
+		return InfoLevel
+	}
+}
 
 type Field = zapcore.Field
 
