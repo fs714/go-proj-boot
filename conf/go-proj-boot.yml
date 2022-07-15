@@ -1,4 +1,5 @@
 common:
+  # run mode which will be used by gin, could be release or debug
   run_mode: release
   profiling: false
 logging:

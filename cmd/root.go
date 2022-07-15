@@ -7,6 +7,7 @@ import (
 
 	"github.com/fs714/go-proj-boot/cmd/show_config"
 	"github.com/fs714/go-proj-boot/cmd/show_version"
+	"github.com/fs714/go-proj-boot/cmd/start_server"
 	"github.com/fs714/go-proj-boot/pkg/utils/config"
 	"github.com/fs714/go-proj-boot/pkg/utils/log"
 	"github.com/fs714/go-proj-boot/pkg/utils/version"
@@ -48,6 +49,7 @@ func init() {
 
 	rootCmd.AddCommand(show_version.StartCmd)
 	rootCmd.AddCommand(show_config.StartCmd)
+	rootCmd.AddCommand(start_server.StartCmd)
 }
 
 func initConfig() {
