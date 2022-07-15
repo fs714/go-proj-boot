@@ -41,7 +41,8 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVarP(&cfgPath, "config", "c", "", "config file path")
 
-	rootCmd.PersistentFlags().StringVarP(&logLevel, "log-level", "", "info", "Set logging level, could be info or debug")
+	rootCmd.PersistentFlags().StringVarP(&logLevel, "log-level", "", config.DefaultConfig.Logging.Level,
+		"Set logging level, could be info or debug")
 	config.Viper.BindPFlag("logging.level", rootCmd.PersistentFlags().Lookup("log-level"))
 	config.Viper.BindEnv("logging.level", "LOGGING_LEVEL")
 

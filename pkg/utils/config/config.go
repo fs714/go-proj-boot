@@ -3,9 +3,48 @@ package config
 import "github.com/spf13/viper"
 
 var (
-	Viper  *viper.Viper
-	Config config
+	Viper         *viper.Viper
+	DefaultConfig config = GetDefaultConfig()
+	Config        config = DefaultConfig
 )
+
+func GetDefaultConfig() config {
+	return config{
+		Common: common{
+			RunMode:   "release",
+			Profiling: false,
+		},
+		Logging: logging{
+			File:       "",
+			Level:      "info",
+			Format:     "console",
+			MaxSize:    10,
+			MaxAge:     16,
+			MaxBackups: 16,
+			Compress:   true,
+		},
+		HttpServer: httpServer{
+			Host:         "0.0.0.0",
+			Port:         "9500",
+			ReadTimeout:  60,
+			WriteTimeout: 60,
+		},
+		Database: database{
+			Host:              "127.0.0.1",
+			Port:              "5432",
+			User:              "mikasa",
+			Pass:              "mikasa",
+			Name:              "titan",
+			MaxOpenConnection: 2,
+			MaxIdleConnection: 1,
+			MaxLifeTime:       21600,
+		},
+		Jwt: jwt{
+			Secret:  "348eee0c-4c3a-4ddc-a054-a563d8f9396b",
+			Timeout: 3600,
+		},
+	}
+}
 
 type common struct {
 	RunMode   string `mapstructure:"run_mode"`
