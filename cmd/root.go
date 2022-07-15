@@ -85,20 +85,26 @@ func initConfig() {
 }
 
 func initLog() {
-	var tops = []log.TeeWithRotateOption{
-		{
-			Filename:   config.Config.Logging.File,
-			MaxSize:    config.Config.Logging.MaxSize,
-			MaxAge:     config.Config.Logging.MaxAge,
-			MaxBackups: config.Config.Logging.MaxBackups,
-			Compress:   config.Config.Logging.Compress,
-			Lef: func(lvl log.Level) bool {
-				return lvl >= log.ParseLevel(config.Config.Logging.Level)
+	if config.Config.Logging.File == "" {
+		logger := log.New(os.Stderr, log.ParseFormat(config.Config.Logging.Format),
+			log.ParseLevel(config.Config.Logging.Level), log.WithCaller(true))
+		log.ResetDefault(logger)
+	} else {
+		var tops = []log.TeeWithRotateOption{
+			{
+				Filename:   config.Config.Logging.File,
+				MaxSize:    config.Config.Logging.MaxSize,
+				MaxAge:     config.Config.Logging.MaxAge,
+				MaxBackups: config.Config.Logging.MaxBackups,
+				Compress:   config.Config.Logging.Compress,
+				Lef: func(lvl log.Level) bool {
+					return lvl >= log.ParseLevel(config.Config.Logging.Level)
+				},
+				F: log.ParseFormat(config.Config.Logging.Format),
 			},
-			F: log.ParseFormat(config.Config.Logging.Format),
-		},
-	}
+		}
 
-	logger := log.NewTeeWithRotate(tops, log.WithCaller(true))
-	log.ResetDefault(logger)
+		logger := log.NewTeeWithRotate(tops, log.WithCaller(true))
+		log.ResetDefault(logger)
+	}
 }

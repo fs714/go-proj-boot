@@ -2,10 +2,11 @@ common:
   run_mode: release
   profiling: false
 logging:
-  file: /var/log/go-proj-boot/go-proj-boot.log
-  # log level could be debug, info, warn or error
+  # log file name, stderr will be used if file is empty string
+  file: ""
+  # log level, could be debug, info, warn or error
   level: info
-  # log format could be console or json
+  # log format, could be console or json
   format: console
   # the maximum size in megabytes of the log file before it gets rotated
   max_size: 10
