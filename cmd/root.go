@@ -89,8 +89,8 @@ func initConfig() {
 func initLog() {
 	if config.Config.Logging.File == "" {
 		logger := log.New(os.Stderr, log.ParseFormat(config.Config.Logging.Format),
-			log.ParseLevel(config.Config.Logging.Level), log.WithCaller(true))
-		log.ResetDefault(logger)
+			log.ParseLevel(config.Config.Logging.Level), true)
+		log.ResetCurrentLog(logger)
 	} else {
 		var tops = []log.TeeWithRotateOption{
 			{
@@ -106,7 +106,7 @@ func initLog() {
 			},
 		}
 
-		logger := log.NewTeeWithRotate(tops, log.WithCaller(true))
-		log.ResetDefault(logger)
+		logger := log.NewTeeWithRotate(tops, true)
+		log.ResetCurrentLog(logger)
 	}
 }

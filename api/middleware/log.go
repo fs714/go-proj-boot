@@ -38,7 +38,7 @@ func LogWithSkipPath(skipPath []string) gin.HandlerFunc {
 			}
 
 			if log.ParseFormat(config.Config.Logging.Format) == log.JsonFormat {
-				log.Infow("GIN",
+				log.CurrentLog().ZapSugaredLogger.Infow("GIN",
 					"StatusCode", statusCode,
 					"Latency", latency,
 					"ClientIP", clientIP,
@@ -69,7 +69,7 @@ func LogWithSkipPath(skipPath []string) gin.HandlerFunc {
 					)
 				}
 
-				log.Infof(consoleString)
+				log.CurrentLog().ZapSugaredLogger.Infof(consoleString)
 			}
 		}
 	}

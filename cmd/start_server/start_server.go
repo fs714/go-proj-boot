@@ -28,7 +28,8 @@ var StartCmd = &cobra.Command{
 }
 
 func startServer() (err error) {
-	log.Infof("start http server %s, %s, %s", version.BaseVersion, version.GitVersion, version.BuildTime)
+	log.Infow("start http server", "BaseVersion", version.BaseVersion, "GitVersion", version.GitVersion,
+		"BuildTime", version.BuildTime)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	signalCh := make(chan os.Signal, 1)
@@ -50,13 +51,13 @@ func startServer() (err error) {
 		go func() {
 			defer exitWg.Done()
 
-			log.Infof("start http server on %s:%s", config.Config.HttpServer.Host, config.Config.HttpServer.Port)
+			log.Infow("start http server", "Host", config.Config.HttpServer.Host, "Port", config.Config.HttpServer.Port)
 			err = srv.ListenAndServe()
 			if err != nil {
 				if errors.Is(err, http.ErrServerClosed) {
 					err = nil
 				} else {
-					log.Errorf("failed to start http server with err: %s", err.Error())
+					log.Errorw("failed to start http server", "err", err.Error())
 				}
 			}
 		}()
@@ -71,9 +72,9 @@ func startServer() (err error) {
 				defer ccancel()
 				err := srv.Shutdown(cctx)
 				if err != nil {
-					log.Errorf("failed to close http server with err: %s", err.Error())
+					log.Errorw("failed to close http server", "err", err.Error())
 				}
-				log.Infof("http server exit")
+				log.Infow("http server exit")
 			}
 		}(ctx)
 	}
@@ -81,7 +82,7 @@ func startServer() (err error) {
 	<-signalCh
 	cancel()
 	exitWg.Wait()
-	log.Infof("go-proj-boot exit")
+	log.Infow("go-proj-boot exit")
 
 	return
 }

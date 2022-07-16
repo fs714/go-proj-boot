@@ -10,75 +10,77 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-var std = New(os.Stderr, ConsoleFormat, InfoLevel, WithCaller(true))
+var currentLog = New(os.Stderr, ConsoleFormat, InfoLevel, true)
+
+const DefaultConsoleSeparator = " | "
 
 var (
-	Debug     = std.Debug
-	Debugf    = std.Debugf
-	Debugw    = std.Debugw
-	Info      = std.Info
-	Infof     = std.Infof
-	Infow     = std.Infow
-	Warn      = std.Warn
-	Warnf     = std.Warnf
-	Warnw     = std.Warnw
-	Error     = std.Error
-	Errorf    = std.Errorf
-	Errorw    = std.Errorw
-	DPanic    = std.DPanic
-	DPanicf   = std.DPanicf
-	DPanicw   = std.DPanicw
-	Panic     = std.Panic
-	Panicf    = std.Panicf
-	Panicw    = std.Panicw
-	Fatal     = std.Fatal
-	Fatalf    = std.Fatalf
-	Fatalw    = std.Fatalw
-	ZapDebug  = std.ZapDebug
-	ZapInfo   = std.ZapInfo
-	ZapWarn   = std.ZapWarn
-	ZapError  = std.ZapError
-	ZapDPanic = std.ZapDPanic
-	ZapPanic  = std.ZapPanic
-	ZapFatal  = std.ZapFatal
-	Sync      = std.Sync
+	Debug     = currentLog.Debug
+	Debugf    = currentLog.Debugf
+	Debugw    = currentLog.Debugw
+	Info      = currentLog.Info
+	Infof     = currentLog.Infof
+	Infow     = currentLog.Infow
+	Warn      = currentLog.Warn
+	Warnf     = currentLog.Warnf
+	Warnw     = currentLog.Warnw
+	Error     = currentLog.Error
+	Errorf    = currentLog.Errorf
+	Errorw    = currentLog.Errorw
+	DPanic    = currentLog.DPanic
+	DPanicf   = currentLog.DPanicf
+	DPanicw   = currentLog.DPanicw
+	Panic     = currentLog.Panic
+	Panicf    = currentLog.Panicf
+	Panicw    = currentLog.Panicw
+	Fatal     = currentLog.Fatal
+	Fatalf    = currentLog.Fatalf
+	Fatalw    = currentLog.Fatalw
+	ZapDebug  = currentLog.ZapDebug
+	ZapInfo   = currentLog.ZapInfo
+	ZapWarn   = currentLog.ZapWarn
+	ZapError  = currentLog.ZapError
+	ZapDPanic = currentLog.ZapDPanic
+	ZapPanic  = currentLog.ZapPanic
+	ZapFatal  = currentLog.ZapFatal
+	Sync      = currentLog.Sync
 )
 
-func Default() *Logger {
-	return std
+func CurrentLog() *Logger {
+	return currentLog
 }
 
-func ResetDefault(l *Logger) {
-	std = l
-	Debug = std.Debug
-	Debugf = std.Debugf
-	Debugw = std.Debugw
-	Info = std.Info
-	Infof = std.Infof
-	Infow = std.Infow
-	Warn = std.Warn
-	Warnf = std.Warnf
-	Warnw = std.Warnw
-	Error = std.Error
-	Errorf = std.Errorf
-	Errorw = std.Errorw
-	DPanic = std.DPanic
-	DPanicf = std.DPanicf
-	DPanicw = std.DPanicw
-	Panic = std.Panic
-	Panicf = std.Panicf
-	Panicw = std.Panicw
-	Fatal = std.Fatal
-	Fatalf = std.Fatalf
-	Fatalw = std.Fatalw
-	ZapDebug = std.ZapDebug
-	ZapInfo = std.ZapInfo
-	ZapWarn = std.ZapWarn
-	ZapError = std.ZapError
-	ZapDPanic = std.ZapDPanic
-	ZapPanic = std.ZapPanic
-	ZapFatal = std.ZapFatal
-	Sync = std.Sync
+func ResetCurrentLog(l *Logger) {
+	currentLog = l
+	Debug = currentLog.Debug
+	Debugf = currentLog.Debugf
+	Debugw = currentLog.Debugw
+	Info = currentLog.Info
+	Infof = currentLog.Infof
+	Infow = currentLog.Infow
+	Warn = currentLog.Warn
+	Warnf = currentLog.Warnf
+	Warnw = currentLog.Warnw
+	Error = currentLog.Error
+	Errorf = currentLog.Errorf
+	Errorw = currentLog.Errorw
+	DPanic = currentLog.DPanic
+	DPanicf = currentLog.DPanicf
+	DPanicw = currentLog.DPanicw
+	Panic = currentLog.Panic
+	Panicf = currentLog.Panicf
+	Panicw = currentLog.Panicw
+	Fatal = currentLog.Fatal
+	Fatalf = currentLog.Fatalf
+	Fatalw = currentLog.Fatalw
+	ZapDebug = currentLog.ZapDebug
+	ZapInfo = currentLog.ZapInfo
+	ZapWarn = currentLog.ZapWarn
+	ZapError = currentLog.ZapError
+	ZapDPanic = currentLog.ZapDPanic
+	ZapPanic = currentLog.ZapPanic
+	ZapFatal = currentLog.ZapFatal
+	Sync = currentLog.Sync
 }
 
 type Format int8
@@ -137,8 +139,9 @@ type Field = zapcore.Field
 type Option = zap.Option
 
 var (
-	WithCaller    = zap.WithCaller
 	AddStacktrace = zap.AddStacktrace
+	AddCaller     = zap.AddCaller
+	AddCallerSkip = zap.AddCallerSkip
 )
 
 var (
@@ -192,144 +195,145 @@ var (
 )
 
 type Logger struct {
-	l  *zap.Logger
-	sl *zap.SugaredLogger
+	ZapLogger        *zap.Logger
+	ZapSugaredLogger *zap.SugaredLogger
 }
 
 func (l *Logger) Debug(args ...interface{}) {
-	l.sl.Debug(args...)
+	l.ZapSugaredLogger.Debug(args...)
 }
 
 func (l *Logger) Debugf(template string, args ...interface{}) {
-	l.sl.Debugf(template, args...)
+	l.ZapSugaredLogger.Debugf(template, args...)
 }
 
 func (l *Logger) Debugw(msg string, keysAndValues ...interface{}) {
-	l.sl.Debugw(msg, keysAndValues...)
+	l.ZapSugaredLogger.Debugw(msg, keysAndValues...)
 }
 
 func (l *Logger) Info(args ...interface{}) {
-	l.sl.Info(args...)
+	l.ZapSugaredLogger.Info(args...)
 }
 
 func (l *Logger) Infof(template string, args ...interface{}) {
-	l.sl.Infof(template, args...)
+	l.ZapSugaredLogger.Infof(template, args...)
 }
 
 func (l *Logger) Infow(msg string, keysAndValues ...interface{}) {
-	l.sl.Infow(msg, keysAndValues...)
+	l.ZapSugaredLogger.Infow(msg, keysAndValues...)
 }
 
 func (l *Logger) Warn(args ...interface{}) {
-	l.sl.Warn(args...)
+	l.ZapSugaredLogger.Warn(args...)
 }
 
 func (l *Logger) Warnf(template string, args ...interface{}) {
-	l.sl.Warnf(template, args...)
+	l.ZapSugaredLogger.Warnf(template, args...)
 }
 
 func (l *Logger) Warnw(msg string, keysAndValues ...interface{}) {
-	l.sl.Warnw(msg, keysAndValues...)
+	l.ZapSugaredLogger.Warnw(msg, keysAndValues...)
 }
 
 func (l *Logger) Error(args ...interface{}) {
-	l.sl.Error(args...)
+	l.ZapSugaredLogger.Error(args...)
 }
 
 func (l *Logger) Errorf(template string, args ...interface{}) {
-	l.sl.Errorf(template, args...)
+	l.ZapSugaredLogger.Errorf(template, args...)
 }
 
 func (l *Logger) Errorw(msg string, keysAndValues ...interface{}) {
-	l.sl.Errorw(msg, keysAndValues...)
+	l.ZapSugaredLogger.Errorw(msg, keysAndValues...)
 }
 
 func (l *Logger) DPanic(args ...interface{}) {
-	l.sl.DPanic(args...)
+	l.ZapSugaredLogger.DPanic(args...)
 }
 
 func (l *Logger) DPanicf(template string, args ...interface{}) {
-	l.sl.DPanicf(template, args...)
+	l.ZapSugaredLogger.DPanicf(template, args...)
 }
 
 func (l *Logger) DPanicw(msg string, keysAndValues ...interface{}) {
-	l.sl.DPanicw(msg, keysAndValues...)
+	l.ZapSugaredLogger.DPanicw(msg, keysAndValues...)
 }
 
 func (l *Logger) Panic(args ...interface{}) {
-	l.sl.Panic(args...)
+	l.ZapSugaredLogger.Panic(args...)
 }
 
 func (l *Logger) Panicf(template string, args ...interface{}) {
-	l.sl.Panicf(template, args...)
+	l.ZapSugaredLogger.Panicf(template, args...)
 }
 
 func (l *Logger) Panicw(msg string, keysAndValues ...interface{}) {
-	l.sl.Panicw(msg, keysAndValues...)
+	l.ZapSugaredLogger.Panicw(msg, keysAndValues...)
 }
 
 func (l *Logger) Fatal(args ...interface{}) {
-	l.sl.Fatal(args...)
+	l.ZapSugaredLogger.Fatal(args...)
 }
 
 func (l *Logger) Fatalf(template string, args ...interface{}) {
-	l.sl.Fatalf(template, args...)
+	l.ZapSugaredLogger.Fatalf(template, args...)
 }
 
 func (l *Logger) Fatalw(msg string, keysAndValues ...interface{}) {
-	l.sl.Fatalw(msg, keysAndValues...)
+	l.ZapSugaredLogger.Fatalw(msg, keysAndValues...)
 }
 
 func (l *Logger) ZapDebug(msg string, fields ...Field) {
-	l.l.Debug(msg, fields...)
+	l.ZapLogger.Debug(msg, fields...)
 }
 
 func (l *Logger) ZapInfo(msg string, fields ...Field) {
-	l.l.Info(msg, fields...)
+	l.ZapLogger.Info(msg, fields...)
 }
 
 func (l *Logger) ZapWarn(msg string, fields ...Field) {
-	l.l.Warn(msg, fields...)
+	l.ZapLogger.Warn(msg, fields...)
 }
 
 func (l *Logger) ZapError(msg string, fields ...Field) {
-	l.l.Error(msg, fields...)
+	l.ZapLogger.Error(msg, fields...)
 }
 
 func (l *Logger) ZapDPanic(msg string, fields ...Field) {
-	l.l.DPanic(msg, fields...)
+	l.ZapLogger.DPanic(msg, fields...)
 }
 
 func (l *Logger) ZapPanic(msg string, fields ...Field) {
-	l.l.Panic(msg, fields...)
+	l.ZapLogger.Panic(msg, fields...)
 }
 
 func (l *Logger) ZapFatal(msg string, fields ...Field) {
-	l.l.Fatal(msg, fields...)
+	l.ZapLogger.Fatal(msg, fields...)
 }
 
 func (l *Logger) Sync() error {
-	return l.l.Sync()
+	return l.ZapLogger.Sync()
 }
 
-func New(writer io.Writer, format Format, level Level, opts ...Option) *Logger {
+func New(writer io.Writer, format Format, level Level, addCaller bool, opts ...Option) *Logger {
 	if writer == nil {
 		panic("the writer is nil")
 	}
 
 	encoderConfig := zapcore.EncoderConfig{
-		TimeKey:        "ts",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		CallerKey:      "caller",
-		FunctionKey:    zapcore.OmitKey,
-		MessageKey:     "msg",
-		StacktraceKey:  "stacktrace",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.CapitalLevelEncoder,
-		EncodeTime:     zapcore.ISO8601TimeEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
+		TimeKey:          "ts",
+		LevelKey:         "level",
+		NameKey:          "logger",
+		CallerKey:        "caller",
+		FunctionKey:      zapcore.OmitKey,
+		MessageKey:       "msg",
+		StacktraceKey:    "stacktrace",
+		LineEnding:       zapcore.DefaultLineEnding,
+		EncodeLevel:      zapcore.CapitalLevelEncoder,
+		EncodeTime:       zapcore.ISO8601TimeEncoder,
+		EncodeDuration:   zapcore.SecondsDurationEncoder,
+		EncodeCaller:     zapcore.ShortCallerEncoder,
+		ConsoleSeparator: DefaultConsoleSeparator,
 	}
 
 	var core zapcore.Core
@@ -349,10 +353,15 @@ func New(writer io.Writer, format Format, level Level, opts ...Option) *Logger {
 		panic("invalid format")
 	}
 
-	logger := &Logger{
-		l: zap.New(core, opts...),
+	if addCaller {
+		opts = append(opts, zap.AddCaller())
+		opts = append(opts, zap.AddCallerSkip(1))
 	}
-	logger.sl = logger.l.Sugar()
+
+	logger := &Logger{
+		ZapLogger: zap.New(core, opts...),
+	}
+	logger.ZapSugaredLogger = logger.ZapLogger.Sugar()
 
 	return logger
 }
@@ -365,22 +374,23 @@ type TeeOption struct {
 	F   Format
 }
 
-func NewTee(tops []TeeOption, opts ...Option) *Logger {
+func NewTee(tops []TeeOption, addCaller bool, opts ...Option) *Logger {
 	var cores []zapcore.Core
 
 	encoderConfig := zapcore.EncoderConfig{
-		TimeKey:        "ts",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		CallerKey:      "caller",
-		FunctionKey:    zapcore.OmitKey,
-		MessageKey:     "msg",
-		StacktraceKey:  "stacktrace",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.CapitalLevelEncoder,
-		EncodeTime:     zapcore.ISO8601TimeEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
+		TimeKey:          "ts",
+		LevelKey:         "level",
+		NameKey:          "logger",
+		CallerKey:        "caller",
+		FunctionKey:      zapcore.OmitKey,
+		MessageKey:       "msg",
+		StacktraceKey:    "stacktrace",
+		LineEnding:       zapcore.DefaultLineEnding,
+		EncodeLevel:      zapcore.CapitalLevelEncoder,
+		EncodeTime:       zapcore.ISO8601TimeEncoder,
+		EncodeDuration:   zapcore.SecondsDurationEncoder,
+		EncodeCaller:     zapcore.ShortCallerEncoder,
+		ConsoleSeparator: DefaultConsoleSeparator,
 	}
 
 	for _, top := range tops {
@@ -413,10 +423,15 @@ func NewTee(tops []TeeOption, opts ...Option) *Logger {
 		cores = append(cores, core)
 	}
 
-	logger := &Logger{
-		l: zap.New(zapcore.NewTee(cores...), opts...),
+	if addCaller {
+		opts = append(opts, zap.AddCaller())
+		opts = append(opts, zap.AddCallerSkip(1))
 	}
-	logger.sl = logger.l.Sugar()
+
+	logger := &Logger{
+		ZapLogger: zap.New(zapcore.NewTee(cores...), opts...),
+	}
+	logger.ZapSugaredLogger = logger.ZapLogger.Sugar()
 
 	return logger
 }
@@ -431,22 +446,23 @@ type TeeWithRotateOption struct {
 	F          Format
 }
 
-func NewTeeWithRotate(tops []TeeWithRotateOption, opts ...Option) *Logger {
+func NewTeeWithRotate(tops []TeeWithRotateOption, addCaller bool, opts ...Option) *Logger {
 	var cores []zapcore.Core
 
 	encoderConfig := zapcore.EncoderConfig{
-		TimeKey:        "ts",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		CallerKey:      "caller",
-		FunctionKey:    zapcore.OmitKey,
-		MessageKey:     "msg",
-		StacktraceKey:  "stacktrace",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.CapitalLevelEncoder,
-		EncodeTime:     zapcore.ISO8601TimeEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
+		TimeKey:          "ts",
+		LevelKey:         "level",
+		NameKey:          "logger",
+		CallerKey:        "caller",
+		FunctionKey:      zapcore.OmitKey,
+		MessageKey:       "msg",
+		StacktraceKey:    "stacktrace",
+		LineEnding:       zapcore.DefaultLineEnding,
+		EncodeLevel:      zapcore.CapitalLevelEncoder,
+		EncodeTime:       zapcore.ISO8601TimeEncoder,
+		EncodeDuration:   zapcore.SecondsDurationEncoder,
+		EncodeCaller:     zapcore.ShortCallerEncoder,
+		ConsoleSeparator: DefaultConsoleSeparator,
 	}
 
 	for _, top := range tops {
@@ -488,10 +504,15 @@ func NewTeeWithRotate(tops []TeeWithRotateOption, opts ...Option) *Logger {
 		cores = append(cores, core)
 	}
 
-	logger := &Logger{
-		l: zap.New(zapcore.NewTee(cores...), opts...),
+	if addCaller {
+		opts = append(opts, zap.AddCaller())
+		opts = append(opts, zap.AddCallerSkip(1))
 	}
-	logger.sl = logger.l.Sugar()
+
+	logger := &Logger{
+		ZapLogger: zap.New(zapcore.NewTee(cores...), opts...),
+	}
+	logger.ZapSugaredLogger = logger.ZapLogger.Sugar()
 
 	return logger
 }

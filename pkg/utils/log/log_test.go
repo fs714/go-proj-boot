@@ -22,8 +22,8 @@ func TestDefaultLog(t *testing.T) {
 }
 
 func TestCustomizedLog(t *testing.T) {
-	logger := New(os.Stderr, JsonFormat, DebugLevel, WithCaller(true))
-	ResetDefault(logger)
+	logger := New(os.Stderr, JsonFormat, DebugLevel, true)
+	ResetCurrentLog(logger)
 
 	Debug(200, ", 192.168.10.64", ", GET", ", /api/v1/health, ", time.Now())
 	Debugf("%d, %s, %s, %s, %s", 200, "192.168.10.64", "GET", "/api/v1/health", time.Now())
@@ -62,8 +62,8 @@ func TestCustomizedTeeLog(t *testing.T) {
 		},
 	}
 
-	logger := NewTee(tops, WithCaller(true))
-	ResetDefault(logger)
+	logger := NewTee(tops, true)
+	ResetCurrentLog(logger)
 
 	Debug(200, ", 192.168.10.64", ", GET", ", /api/v1/health, ", time.Now())
 	Debugf("%d, %s, %s, %s, %s", 200, "192.168.10.64", "GET", "/api/v1/health", time.Now())
@@ -94,8 +94,8 @@ func TestCustomizedTeeWithRotateLog(t *testing.T) {
 		},
 	}
 
-	logger := NewTeeWithRotate(tops, WithCaller(true))
-	ResetDefault(logger)
+	logger := NewTeeWithRotate(tops, true)
+	ResetCurrentLog(logger)
 
 	Debug(200, ", 192.168.10.64", ", GET", ", /api/v1/health, ", time.Now())
 	Debugf("%d, %s, %s, %s, %s", 200, "192.168.10.64", "GET", "/api/v1/health", time.Now())
