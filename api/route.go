@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/fs714/go-proj-boot/api/middleware"
 	"github.com/fs714/go-proj-boot/api/v1/auth"
 	"github.com/fs714/go-proj-boot/api/v1/public"
 	"github.com/fs714/go-proj-boot/pkg/utils/config"
@@ -14,9 +15,7 @@ func InitRouter() *gin.Engine {
 	gin.SetMode(config.Config.Common.RunMode)
 	gin.DisableConsoleColor()
 	r := gin.New()
-	r.Use(gin.LoggerWithConfig(gin.LoggerConfig{
-		SkipPaths: []string{"/api/v1/health"},
-	}))
+	r.Use(middleware.LogWithSkipPath([]string{}))
 	r.Use(gzip.Gzip(gzip.DefaultCompression, gzip.WithDecompressFn(gzip.DefaultDecompressHandle)))
 	r.Use(gin.Recovery())
 	r.Use(cors.Default())
