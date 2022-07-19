@@ -34,6 +34,8 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
+
+	log.Sync()
 }
 
 func init() {
