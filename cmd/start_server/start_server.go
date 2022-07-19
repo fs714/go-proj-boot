@@ -18,6 +18,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	httpHost     string
+	httpPort     string
+	readTimeout  int
+	writeTimeout int
+)
+
 var StartCmd = &cobra.Command{
 	Use:          "server",
 	Short:        "Start http server",
@@ -27,9 +34,30 @@ var StartCmd = &cobra.Command{
 	},
 }
 
+func InitStartCmd() {
+	StartCmd.Flags().StringVarP(&httpHost, "host", "l", config.DefaultConfig.HttpServer.Host,
+		"Http server listening address")
+	config.Viper.BindPFlag("http_server.host", StartCmd.Flags().Lookup("host"))
+	config.Viper.BindEnv("http_server.host", "HTTP_HOST")
+
+	StartCmd.Flags().StringVarP(&httpPort, "port", "p", config.DefaultConfig.HttpServer.Port,
+		"Http server listening port")
+	config.Viper.BindPFlag("http_server.port", StartCmd.Flags().Lookup("port"))
+	config.Viper.BindEnv("http_server.port", "HTTP_PORT")
+
+	StartCmd.Flags().IntVarP(&readTimeout, "read-timeout", "", config.DefaultConfig.HttpServer.ReadTimeout,
+		"Http server read timeout")
+	config.Viper.BindPFlag("http_server.read_timeout", StartCmd.Flags().Lookup("read-timeout"))
+	config.Viper.BindEnv("http_server.read_timeout", "HTTP_READ_TIMEOUT")
+
+	StartCmd.Flags().IntVarP(&writeTimeout, "write-timeout", "", config.DefaultConfig.HttpServer.WriteTimeout,
+		"Http server write timeout")
+	config.Viper.BindPFlag("http_server.write_timeout", StartCmd.Flags().Lookup("write-timeout"))
+	config.Viper.BindEnv("http_server.write_timeout", "HTTP_WRITE_TIMEOUT")
+}
+
 func startServer() (err error) {
-	log.Infow("start http server", "BaseVersion", version.BaseVersion, "GitVersion", version.GitVersion,
-		"BuildTime", version.BuildTime)
+	log.Infow("start http server", "BaseVersion", version.BaseVersion, "GitVersion", version.GitVersion)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	signalCh := make(chan os.Signal, 1)
