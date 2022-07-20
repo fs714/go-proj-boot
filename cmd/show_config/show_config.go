@@ -25,8 +25,7 @@ func printConfig() (err error) {
 	conf := config.Viper.AllSettings()
 	configJson, err := json.MarshalIndent(conf, "", "  ")
 	if err != nil {
-		errors.Wrap(err, "marshal viper conf failed")
-		return
+		return errors.Wrap(err, "marshal viper conf failed")
 	}
 	fmt.Println(string(configJson))
 	fmt.Println()
@@ -34,8 +33,7 @@ func printConfig() (err error) {
 	fmt.Println("configuration from config structure:")
 	configJson, err = json.MarshalIndent(config.Config, "", "  ")
 	if err != nil {
-		errors.Wrap(err, "marshal config stuct failed")
-		return
+		return errors.Wrap(err, "marshal config stuct failed")
 	}
 	fmt.Println(string(configJson))
 
