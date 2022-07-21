@@ -23,6 +23,7 @@ var (
 	httpPort     string
 	readTimeout  int
 	writeTimeout int
+	jwtSecret    string
 )
 
 var StartCmd = &cobra.Command{
@@ -54,6 +55,11 @@ func InitStartCmd() {
 		"Http server write timeout")
 	config.Viper.BindPFlag("http_server.write_timeout", StartCmd.Flags().Lookup("write-timeout"))
 	config.Viper.BindEnv("http_server.write_timeout", "HTTP_WRITE_TIMEOUT")
+
+	StartCmd.Flags().StringVarP(&jwtSecret, "jwt-secret", "", config.DefaultConfig.Jwt.Secret,
+		"Secret key for jwt")
+	config.Viper.BindPFlag("jwt.secret", StartCmd.Flags().Lookup("jwt-secret"))
+	config.Viper.BindEnv("jwt.secret", "JWT_SECRET")
 }
 
 func startServer() (err error) {

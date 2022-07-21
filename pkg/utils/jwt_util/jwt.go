@@ -17,14 +17,24 @@ type Claims struct {
 }
 
 type JwtUtil struct {
-	SigningKey []byte
-	BufferTime int
+	SigningKey     []byte
+	ExpiresTime    int
+	BufferTime     int
+	CookieName     string
+	CookiePath     string
+	CookieDomain   string
+	SecurityCookie bool
 }
 
 func NewJwtUtil() *JwtUtil {
 	return &JwtUtil{
-		SigningKey: []byte(config.DefaultConfig.Jwt.Secret),
-		BufferTime: 9999,
+		SigningKey:     []byte(config.DefaultConfig.Jwt.Secret),
+		ExpiresTime:    config.DefaultConfig.Jwt.ExpiresTime,
+		BufferTime:     config.DefaultConfig.Jwt.BufferTime,
+		CookieName:     config.DefaultConfig.Jwt.CookieName,
+		CookiePath:     config.DefaultConfig.Jwt.CookiePath,
+		CookieDomain:   config.DefaultConfig.Jwt.CookieDomain,
+		SecurityCookie: config.DefaultConfig.Jwt.SecurityCookie,
 	}
 }
 
@@ -33,7 +43,7 @@ func (j *JwtUtil) CreateClaims(username string) Claims {
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "Config.Issuer",
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(9999 * time.Second)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(j.ExpiresTime) * time.Second)),
 			NotBefore: jwt.NewNumericDate(time.Now().Add(600 * time.Second)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ID:        ulid.Make().String(),

@@ -35,4 +35,14 @@ jwt:
   # jwt token, should be changed in production env
   secret: 348eee0c-4c3a-4ddc-a054-a563d8f9396b
   # jwt token expire time in seconds
-  timeout: 3600
+  expires_time: 3600
+  # jwt token will be auto refreshed in buffer time in seconds
+  buffer_time: 86400
+  # cookie name for token
+  cookie_name: token
+  # cookie path
+  cookie_path: /
+  # cookie domain will be handled by browsers when it is empty
+  cookie_domain: ""
+  # whether to encrypt token in cookie
+  security_cookie: false

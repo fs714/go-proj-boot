@@ -14,13 +14,16 @@ import (
 
 func JwtAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token, err := tokenFromCookie(c, "todoCookieName")
+		j := jwt_util.NewJwtUtil()
+
+		token, err := tokenFromCookie(c, j.CookieName)
 		if err != nil {
-			log.Errorf("%+v", err)
+			errMsg := "failed to get token from cookie"
+			log.Errorw(errMsg, "err", err)
 
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": http.StatusUnauthorized,
-				"msg":  err.Error(),
+				"msg":  errMsg,
 				"data": "",
 			})
 
@@ -28,14 +31,14 @@ func JwtAuth() gin.HandlerFunc {
 			return
 		}
 
-		j := jwt_util.NewJwtUtil()
 		claims, err := j.ParseToken(token)
 		if err != nil {
-			log.Errorf("%+v", err)
+			errMsg := "failed to parse token"
+			log.Errorf(errMsg, "err", err)
 
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": http.StatusUnauthorized,
-				"msg":  err.Error(),
+				"msg":  errMsg,
 				"data": "",
 			})
 
@@ -43,12 +46,10 @@ func JwtAuth() gin.HandlerFunc {
 			return
 		}
 
-		bufferTime := 9999
-		ExpiresTime := 9999
-		if claims.ExpiresAt.Unix()-time.Now().Unix() < int64(bufferTime) {
-			claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Duration(ExpiresTime) * time.Second))
+		if claims.ExpiresAt.Unix()-time.Now().Unix() < int64(j.BufferTime) {
+			claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Duration(j.ExpiresTime) * time.Second))
 			newToken, _ := j.CreateTokenByOldToken(token, *claims)
-			tokenToCookie(c, "todoCookieName", newToken)
+			tokenToCookie(c, j.CookieName, newToken, j.ExpiresTime, j.CookiePath, j.CookieDomain)
 		}
 
 		c.Set("claims", claims)
@@ -76,13 +77,13 @@ func tokenFromCookie(c *gin.Context, cookieName string) (string, error) {
 	return cookie, nil
 }
 
-func tokenToCookie(c *gin.Context, cookieName string, token string) {
+func tokenToCookie(c *gin.Context, cookieName string, token string, maxAge int, path string, domain string) {
 	c.SetCookie(
 		cookieName,
 		token,
-		9999,
-		"/+todo_path",
-		"todo_CookieDomain",
+		maxAge,
+		path,
+		domain,
 		false,
 		true,
 	)

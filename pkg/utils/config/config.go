@@ -40,8 +40,13 @@ func GetDefaultConfig() config {
 			MaxLifeTime:       21600,
 		},
 		Jwt: jwt{
-			Secret:  "348eee0c-4c3a-4ddc-a054-a563d8f9396b",
-			Timeout: 3600,
+			Secret:         "348eee0c-4c3a-4ddc-a054-a563d8f9396b",
+			ExpiresTime:    3600,
+			BufferTime:     86400,
+			CookieName:     "token",
+			CookiePath:     "/",
+			CookieDomain:   "",
+			SecurityCookie: false,
 		},
 	}
 }
@@ -80,8 +85,13 @@ type database struct {
 }
 
 type jwt struct {
-	Secret  string `mapstructure:"secret"`
-	Timeout int    `mapstructure:"timeout"`
+	Secret         string `mapstructure:"secret"`
+	ExpiresTime    int    `mapstructure:"expires_time"`
+	BufferTime     int    `mapstructure:"buffer_time"`
+	CookieName     string `mapstructure:"cookie_name"`
+	CookiePath     string `mapstructure:"cookie_path"`
+	CookieDomain   string `mapstructure:"cookie_domain"`
+	SecurityCookie bool   `mapstructure:"security_cookie"`
 }
 
 type config struct {
