@@ -2,8 +2,11 @@ package log
 
 import (
 	"os"
+	"strconv"
 	"testing"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 func TestDefaultLog(t *testing.T) {
@@ -109,4 +112,43 @@ func TestCustomizedTeeWithRotateLog(t *testing.T) {
 
 	ZapInfo("message", Int("code", 200), String("Src", "192.168.10.64"), String("Method", "GET"),
 		String("Url", "/api/v1/health"), Time("Time", time.Now()))
+}
+
+func parseStrToInt(s string) (int, error) {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, errors.Wrapf(err, "failed to parse %s to int", s)
+	}
+
+	return i, nil
+}
+
+func middleFunc(s string) error {
+	_, err := parseStrToInt(s)
+	if err != nil {
+		return errors.WithMessagef(err, "failed to parseStrToInt for %s", s)
+	}
+
+	return nil
+}
+
+func TestConsoleLogWithError(t *testing.T) {
+	err := middleFunc("aaa")
+	if err != nil {
+		Error("middleFunc failed", ", err: ", err)
+		Errorf("middleFunc failed with err: %+v", err)
+		Errorw("middleFunc failed", "err", err)
+	}
+}
+
+func TestJsonLogWithError(t *testing.T) {
+	logger := New(os.Stderr, JsonFormat, InfoLevel, true)
+	ResetCurrentLog(logger)
+
+	err := middleFunc("aaa")
+	if err != nil {
+		Error("middleFunc failed", ", err: ", err)
+		Errorf("middleFunc failed with err: %+v", err)
+		Errorw("middleFunc failed", "err", err)
+	}
 }
