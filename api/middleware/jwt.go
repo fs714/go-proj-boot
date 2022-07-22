@@ -26,7 +26,7 @@ func JwtAuth() gin.HandlerFunc {
 		token, err := tokenFromCookie(c, j.CookieName, j.SecurityCookie)
 		if err != nil {
 			errMsg := "failed to get token from cookie"
-			log.Errorw(errMsg, "err", err)
+			log.Errorf(errMsg+":%+v", err)
 
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": http.StatusUnauthorized,
@@ -41,7 +41,7 @@ func JwtAuth() gin.HandlerFunc {
 		claims, err := j.ParseToken(token)
 		if err != nil {
 			errMsg := "failed to parse token"
-			log.Errorw(errMsg, "err", err)
+			log.Errorf(errMsg+":%+v", err)
 
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": http.StatusUnauthorized,
@@ -59,7 +59,7 @@ func JwtAuth() gin.HandlerFunc {
 			err = tokenToCookie(c, j, newToken)
 			if err != nil {
 				errMsg := "failed to set token to cookie"
-				log.Errorw(errMsg, "err", err)
+				log.Errorf(errMsg+":%+v", err)
 
 				c.JSON(http.StatusUnauthorized, gin.H{
 					"code": http.StatusUnauthorized,

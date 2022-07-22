@@ -91,7 +91,7 @@ func startServer() (err error) {
 				if errors.Is(err, http.ErrServerClosed) {
 					err = nil
 				} else {
-					log.Errorw("failed to start http server", "err", err.Error())
+					log.Errorf("failed to start http server:\n%+v", err)
 				}
 			}
 		}()
@@ -106,7 +106,7 @@ func startServer() (err error) {
 				defer ccancel()
 				err := srv.Shutdown(cctx)
 				if err != nil {
-					log.Errorw("failed to close http server", "err", err.Error())
+					log.Errorf("failed to close http server:\n%+v", err)
 				}
 				log.Infow("http server exit")
 			}
