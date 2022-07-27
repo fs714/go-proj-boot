@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	cmd_config "github.com/fs714/go-proj-boot/cmd/config"
+	cmd_migrate "github.com/fs714/go-proj-boot/cmd/migrate"
 	cmd_server "github.com/fs714/go-proj-boot/cmd/server"
 	cmd_version "github.com/fs714/go-proj-boot/cmd/version"
 	"github.com/fs714/go-proj-boot/pkg/utils/config"
@@ -41,6 +42,9 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.PersistentFlags().SortFlags = false
+	rootCmd.Flags().SortFlags = false
+
 	config.Viper = viper.New()
 	cobra.OnInitialize(initConfig)
 
@@ -61,11 +65,14 @@ func init() {
 	config.Viper.BindPFlag("logging.format", rootCmd.PersistentFlags().Lookup("log-format"))
 	config.Viper.BindEnv("logging.format", "LOGGING_FORMAT")
 
+	cmd_version.InitStartCmd()
 	cmd_server.InitStartCmd()
+	cmd_migrate.InitStartCmd()
 
 	rootCmd.AddCommand(cmd_version.StartCmd)
 	rootCmd.AddCommand(cmd_config.StartCmd)
 	rootCmd.AddCommand(cmd_server.StartCmd)
+	rootCmd.AddCommand(cmd_migrate.StartCmd)
 }
 
 func initConfig() {

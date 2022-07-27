@@ -5,6 +5,7 @@ import (
 
 	"github.com/fs714/go-proj-boot/pkg/utils/version"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var StartCmd = &cobra.Command{
@@ -13,6 +14,15 @@ var StartCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		printVersion()
 	},
+}
+
+func InitStartCmd() {
+	StartCmd.SetHelpFunc(func(command *cobra.Command, strings []string) {
+		command.Parent().PersistentFlags().VisitAll(func(flag *pflag.Flag) {
+			flag.Hidden = true
+		})
+		command.Parent().HelpFunc()(command, strings)
+	})
 }
 
 func printVersion() {

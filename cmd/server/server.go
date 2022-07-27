@@ -36,6 +36,9 @@ var StartCmd = &cobra.Command{
 }
 
 func InitStartCmd() {
+	StartCmd.PersistentFlags().SortFlags = false
+	StartCmd.Flags().SortFlags = false
+
 	StartCmd.Flags().StringVarP(&httpHost, "host", "l", config.DefaultConfig.HttpServer.Host,
 		"Http server listening address")
 	config.Viper.BindPFlag("http_server.host", StartCmd.Flags().Lookup("host"))
