@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fs714/go-proj-boot/cmd/show_config"
-	"github.com/fs714/go-proj-boot/cmd/show_version"
-	"github.com/fs714/go-proj-boot/cmd/start_server"
+	cmd_config "github.com/fs714/go-proj-boot/cmd/config"
+	cmd_server "github.com/fs714/go-proj-boot/cmd/server"
+	cmd_version "github.com/fs714/go-proj-boot/cmd/version"
 	"github.com/fs714/go-proj-boot/pkg/utils/config"
 	"github.com/fs714/go-proj-boot/pkg/utils/log"
 	"github.com/fs714/go-proj-boot/pkg/utils/version"
@@ -61,11 +61,11 @@ func init() {
 	config.Viper.BindPFlag("logging.format", rootCmd.PersistentFlags().Lookup("log-format"))
 	config.Viper.BindEnv("logging.format", "LOGGING_FORMAT")
 
-	start_server.InitStartCmd()
+	cmd_server.InitStartCmd()
 
-	rootCmd.AddCommand(show_version.StartCmd)
-	rootCmd.AddCommand(show_config.StartCmd)
-	rootCmd.AddCommand(start_server.StartCmd)
+	rootCmd.AddCommand(cmd_version.StartCmd)
+	rootCmd.AddCommand(cmd_config.StartCmd)
+	rootCmd.AddCommand(cmd_server.StartCmd)
 }
 
 func initConfig() {

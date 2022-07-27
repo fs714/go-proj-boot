@@ -1,4 +1,4 @@
-package start_server
+package server
 
 import (
 	"context"

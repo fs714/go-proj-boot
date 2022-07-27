@@ -1,4 +1,4 @@
-package show_version
+package version
 
 import (
 	"fmt"

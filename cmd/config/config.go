@@ -1,4 +1,4 @@
-package show_config
+package config
 
 import (
 	"encoding/json"
