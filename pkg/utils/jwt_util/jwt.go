@@ -28,13 +28,13 @@ type JwtUtil struct {
 
 func NewJwtUtil() *JwtUtil {
 	return &JwtUtil{
-		SigningKey:     []byte(config.DefaultConfig.Jwt.Secret),
-		ExpiresTime:    config.DefaultConfig.Jwt.ExpiresTime,
-		BufferTime:     config.DefaultConfig.Jwt.BufferTime,
-		CookieName:     config.DefaultConfig.Jwt.CookieName,
-		CookiePath:     config.DefaultConfig.Jwt.CookiePath,
-		CookieDomain:   config.DefaultConfig.Jwt.CookieDomain,
-		SecurityCookie: config.DefaultConfig.Jwt.SecurityCookie,
+		SigningKey:     []byte(config.Config.Jwt.Secret),
+		ExpiresTime:    config.Config.Jwt.ExpiresTime,
+		BufferTime:     config.Config.Jwt.BufferTime,
+		CookieName:     config.Config.Jwt.CookieName,
+		CookiePath:     config.Config.Jwt.CookiePath,
+		CookieDomain:   config.Config.Jwt.CookieDomain,
+		SecurityCookie: config.Config.Jwt.SecurityCookie,
 	}
 }
 
