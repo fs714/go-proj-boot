@@ -1,19 +1,23 @@
 package migrate
 
 import (
+	"github.com/fs714/go-proj-boot/db/pgsql"
 	"github.com/fs714/go-proj-boot/pkg/utils/config"
 	"github.com/fs714/go-proj-boot/pkg/utils/log"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
 var (
-	dbHost  string
-	dbPort  string
-	dbUser  string
-	dbPass  string
-	dbName  string
-	number  int
-	version string
+	dbHost string
+	dbPort string
+	dbUser string
+	dbPass string
+	dbName string
+	number int
 )
 
 var StartCmd = &cobra.Command{
@@ -30,27 +34,26 @@ var StartCmd = &cobra.Command{
 }
 
 func InitStartCmd() {
-	InitStartCreateCmd()
+	InitStartShowCmd()
 	InitStartUpCmd()
 	InitStartDownCmd()
 	InitStartGotoCmd()
 	InitStartForceCmd()
 
-	StartCmd.AddCommand(StartCreateCmd)
+	StartCmd.AddCommand(StartShowCmd)
 	StartCmd.AddCommand(StartUpCmd)
 	StartCmd.AddCommand(StartDownCmd)
 	StartCmd.AddCommand(StartGotoCmd)
 	StartCmd.AddCommand(StartForceCmd)
 }
 
-var StartCreateCmd = &cobra.Command{
-	Use:          "create [flags] name",
-	Short:        "Create Database migration up/down files",
+var StartShowCmd = &cobra.Command{
+	Use:          "show",
+	Short:        "Show the currently active migration version",
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 1 {
-			log.Infow("migrate-created called", "name", args[0])
-			return nil
+		if len(args) == 0 {
+			return ShowCmd()
 		} else {
 			cmd.Help()
 			return nil
@@ -58,8 +61,8 @@ var StartCreateCmd = &cobra.Command{
 	},
 }
 
-func InitStartCreateCmd() {
-	addDatabaseFlags(StartCreateCmd)
+func InitStartShowCmd() {
+	addDatabaseFlags(StartShowCmd)
 }
 
 var StartUpCmd = &cobra.Command{
@@ -105,12 +108,12 @@ func InitStartDownCmd() {
 }
 
 var StartGotoCmd = &cobra.Command{
-	Use:          "goto",
+	Use:          "goto [flags] V",
 	Short:        "Migrate to version V",
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			log.Infow("migrate-goto called", "V", version)
+		if len(args) == 1 {
+			log.Infow("migrate-goto called", "V", args[0])
 			return nil
 		} else {
 			cmd.Help()
@@ -121,17 +124,15 @@ var StartGotoCmd = &cobra.Command{
 
 func InitStartGotoCmd() {
 	addDatabaseFlags(StartGotoCmd)
-	StartGotoCmd.Flags().StringVarP(&version, "version", "V", "",
-		"Migrate Version")
 }
 
 var StartForceCmd = &cobra.Command{
-	Use:          "force",
+	Use:          "force [flags] V",
 	Short:        "Set version V but don't run migration (ignores dirty state)",
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			log.Infow("migrate-force called", "V", version)
+		if len(args) == 1 {
+			log.Infow("migrate-force called", "V", args[0])
 			return nil
 		} else {
 			cmd.Help()
@@ -142,8 +143,6 @@ var StartForceCmd = &cobra.Command{
 
 func InitStartForceCmd() {
 	addDatabaseFlags(StartForceCmd)
-	StartForceCmd.Flags().StringVarP(&version, "version", "V", "",
-		"Migrate Version")
 }
 
 func addDatabaseFlags(cmd *cobra.Command) {
@@ -174,4 +173,44 @@ func addDatabaseFlags(cmd *cobra.Command) {
 		"Database name to connect")
 	config.Viper.BindPFlag("database.name", cmd.Flags().Lookup("name"))
 	config.Viper.BindEnv("database.name", "DATABASE_NAME")
+}
+
+func ShowCmd() (err error) {
+	err = pgsql.PostgreDbInitFromConfig()
+	if err != nil {
+		log.Errorf("show cmd failed during init db:%+v", err)
+		return
+	}
+
+	driver, err := postgres.WithInstance(pgsql.DB.DB, &postgres.Config{})
+	if err != nil {
+		errors.Wrap(err, "show cmd failed during new migrate db driver")
+		log.Errorf("%+v", err)
+		return
+	}
+
+	d, err := iofs.New(pgsql.MigratesFs, "db/migrations")
+	if err != nil {
+		errors.Wrap(err, "show cmd failed during new iofs from embed")
+		log.Errorf("%+v", err)
+		return
+	}
+
+	m, err := migrate.NewWithInstance("iofs", d, "postgres", driver)
+	if err != nil {
+		errors.Wrap(err, "show cmd failed during new migrate instance")
+		log.Errorf("%+v", err)
+		return
+	}
+
+	version, dirty, err := m.Version()
+	if err != nil {
+		errors.Wrap(err, "show cmd failed during invoke Version")
+		log.Errorf("%+v", err)
+		return
+	}
+
+	log.Infow("Current active migration version", "version", version, "dirty", dirty)
+
+	return
 }
