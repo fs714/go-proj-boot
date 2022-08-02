@@ -1,6 +1,8 @@
 package migrate
 
 import (
+	"strconv"
+
 	"github.com/fs714/go-proj-boot/db/pgsql"
 	"github.com/fs714/go-proj-boot/pkg/utils/config"
 	"github.com/fs714/go-proj-boot/pkg/utils/log"
@@ -71,8 +73,7 @@ var StartUpCmd = &cobra.Command{
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			log.Infow("migrate-up called", "N", number)
-			return nil
+			return UpCmd(number)
 		} else {
 			cmd.Help()
 			return nil
@@ -92,8 +93,7 @@ var StartDownCmd = &cobra.Command{
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			log.Infow("migrate-down called", "N", number)
-			return nil
+			return DownCmd(number)
 		} else {
 			cmd.Help()
 			return nil
@@ -113,8 +113,7 @@ var StartGotoCmd = &cobra.Command{
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 1 {
-			log.Infow("migrate-goto called", "V", args[0])
-			return nil
+			return GotoCmd(args[0])
 		} else {
 			cmd.Help()
 			return nil
@@ -132,8 +131,7 @@ var StartForceCmd = &cobra.Command{
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 1 {
-			log.Infow("migrate-force called", "V", args[0])
-			return nil
+			return ForceCmd(args[0])
 		} else {
 			cmd.Help()
 			return nil
@@ -175,42 +173,155 @@ func addDatabaseFlags(cmd *cobra.Command) {
 	config.Viper.BindEnv("database.name", "DATABASE_NAME")
 }
 
-func ShowCmd() (err error) {
-	err = pgsql.PostgreDbInitFromConfig()
+func getMigrateInstance() (*migrate.Migrate, error) {
+	err := pgsql.PostgreDbInitFromConfig()
 	if err != nil {
-		log.Errorf("show cmd failed during init db:%+v", err)
-		return
+		return nil, errors.Wrap(err, "failed to init postgre from config")
 	}
 
 	driver, err := postgres.WithInstance(pgsql.DB.DB, &postgres.Config{})
 	if err != nil {
-		errors.Wrap(err, "show cmd failed during new migrate db driver")
-		log.Errorf("%+v", err)
-		return
+		return nil, errors.Wrap(err, "failed to get migrate db driver")
 	}
 
 	d, err := iofs.New(pgsql.MigratesFs, "db/migrations")
 	if err != nil {
-		errors.Wrap(err, "show cmd failed during new iofs from embed")
-		log.Errorf("%+v", err)
-		return
+		return nil, errors.Wrap(err, "failed to get migrate isfo from embed")
 	}
 
 	m, err := migrate.NewWithInstance("iofs", d, "postgres", driver)
 	if err != nil {
-		errors.Wrap(err, "show cmd failed during new migrate instance")
-		log.Errorf("%+v", err)
+		return nil, errors.Wrap(err, "failed to new migrate instance")
+	}
+
+	return m, nil
+}
+
+func ShowCmd() (err error) {
+	m, err := getMigrateInstance()
+	if err != nil {
+		log.Errorf("failed to get migrate instance: %+v", err)
 		return
 	}
 
 	version, dirty, err := m.Version()
 	if err != nil {
-		errors.Wrap(err, "show cmd failed during invoke Version")
+		errors.Wrap(err, "faileld to invoke migrate Version")
 		log.Errorf("%+v", err)
 		return
 	}
 
 	log.Infow("Current active migration version", "version", version, "dirty", dirty)
+
+	return
+}
+
+func UpCmd(number int) (err error) {
+	m, err := getMigrateInstance()
+	if err != nil {
+		log.Errorf("failed to get migrate instance: %+v", err)
+		return
+	}
+
+	if number >= 0 {
+		err = m.Steps(number)
+		if err != nil {
+			if err != migrate.ErrNoChange {
+				errors.Wrap(err, "failed to invoke migrate Steps")
+				log.Errorf("%+v", err)
+				return
+			}
+		}
+	} else {
+		err = m.Up()
+		if err != nil {
+			if err != migrate.ErrNoChange {
+				errors.Wrap(err, "failed to invoke migrate Up")
+				log.Errorf("%+v", err)
+				return
+			}
+		}
+	}
+
+	return
+}
+
+func DownCmd(number int) (err error) {
+	m, err := getMigrateInstance()
+	if err != nil {
+		log.Errorf("failed to get migrate instance: %+v", err)
+		return
+	}
+
+	if number >= 0 {
+		err = m.Steps(-number)
+		if err != nil {
+			if err != migrate.ErrNoChange {
+				errors.Wrap(err, "failed to invoke migrate Steps")
+				log.Errorf("%+v", err)
+				return
+			}
+		}
+	} else {
+		err = m.Down()
+		if err != nil {
+			if err != migrate.ErrNoChange {
+				errors.Wrap(err, "failed to invoke migrate Down")
+				log.Errorf("%+v", err)
+				return
+			}
+		}
+	}
+
+	return
+}
+
+func GotoCmd(version string) (err error) {
+	m, err := getMigrateInstance()
+	if err != nil {
+		log.Errorf("failed to get migrate instance: %+v", err)
+		return
+	}
+
+	v, err := strconv.ParseUint(version, 10, 64)
+	if err != nil {
+		err = errors.New("failed to read version argument V")
+		log.Errorf("%+v", err)
+		return
+	}
+
+	err = m.Migrate(uint(v))
+	if err != nil {
+		if err != migrate.ErrNoChange {
+			errors.Wrap(err, "failed to invoke migrate Migrate")
+			log.Errorf("%+v", err)
+			return
+		}
+	}
+
+	return
+}
+
+func ForceCmd(version string) (err error) {
+	m, err := getMigrateInstance()
+	if err != nil {
+		log.Errorf("failed to get migrate instance: %+v", err)
+		return
+	}
+
+	v, err := strconv.ParseUint(version, 10, 64)
+	if err != nil {
+		err = errors.New("failed to read version argument V")
+		log.Errorf("%+v", err)
+		return
+	}
+
+	err = m.Force(int(v))
+	if err != nil {
+		errors.Wrap(err, "failed to invoke migrate Force")
+		log.Errorf("%+v", err)
+		return
+	}
 
 	return
 }
