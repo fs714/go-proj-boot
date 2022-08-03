@@ -184,7 +184,7 @@ func getMigrateInstance() (*migrate.Migrate, error) {
 		return nil, errors.Wrap(err, "failed to get migrate db driver")
 	}
 
-	d, err := iofs.New(pgsql.MigratesFs, "db/migrations")
+	d, err := iofs.New(pgsql.MigratesFs, "migrations")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get migrate isfo from embed")
 	}
