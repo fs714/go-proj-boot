@@ -223,7 +223,7 @@ func UpCmd(number int) (err error) {
 		return
 	}
 
-	if number >= 0 {
+	if number > 0 {
 		err = m.Steps(number)
 		if err != nil {
 			if err != migrate.ErrNoChange {
@@ -253,7 +253,7 @@ func DownCmd(number int) (err error) {
 		return
 	}
 
-	if number >= 0 {
+	if number > 0 {
 		err = m.Steps(-number)
 		if err != nil {
 			if err != migrate.ErrNoChange {

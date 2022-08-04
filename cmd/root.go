@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	cmd_config "github.com/fs714/go-proj-boot/cmd/config"
 	cmd_migrate "github.com/fs714/go-proj-boot/cmd/migrate"
@@ -83,26 +82,26 @@ func initConfig() {
 		config.Viper.SetConfigName("go-proj-boot")
 		config.Viper.SetConfigType("yaml")
 
-		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+		dir, err := os.Getwd()
 		if err != nil {
-			fmt.Printf("failed to get current path with err: %s\n", err.Error())
+			fmt.Printf("failed to get current dir with err: %s\n", err.Error())
 		}
 
-		config.Viper.AddConfigPath(dir + "/conf")
-		config.Viper.AddConfigPath(".")
-		config.Viper.AddConfigPath("./conf")
 		config.Viper.AddConfigPath("/etc/go-proj-boot")
+		config.Viper.AddConfigPath(dir + "/conf")
 	}
 
 	err := config.Viper.ReadInConfig()
 	if err != nil {
-		fmt.Printf("failed to read configuration file with err: %s\n", err.Error())
+		fmt.Printf("failed to read configuration file, path: %s, err: %s\n",
+			config.Viper.ConfigFileUsed(), err.Error())
 		os.Exit(1)
 	}
 
 	err = config.Viper.Unmarshal(&config.Config)
 	if err != nil {
-		fmt.Printf("failed to unmarshal configuration to structure with err: %s\n", err.Error())
+		fmt.Printf("failed to unmarshal configuration to structure, path: %s, err: %s\n",
+			config.Viper.ConfigFileUsed(), err.Error())
 		os.Exit(1)
 	}
 }
