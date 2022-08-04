@@ -24,6 +24,9 @@ var (
 	readTimeout  int
 	writeTimeout int
 	jwtSecret    string
+	logFile      string
+	logLevel     string
+	logFormat    string
 )
 
 var StartCmd = &cobra.Command{
@@ -67,6 +70,21 @@ func InitStartCmd() {
 		"Secret key for jwt")
 	config.Viper.BindPFlag("jwt.secret", StartCmd.Flags().Lookup("jwt-secret"))
 	config.Viper.BindEnv("jwt.secret", "JWT_SECRET")
+
+	StartCmd.Flags().StringVarP(&logFile, "log-file", "", config.DefaultConfig.Logging.File,
+		"Set logging file, stderr will be used if file is empty string")
+	config.Viper.BindPFlag("logging.file", StartCmd.Flags().Lookup("log-file"))
+	config.Viper.BindEnv("logging.file", "LOGGING_FILE")
+
+	StartCmd.Flags().StringVarP(&logLevel, "log-level", "", config.DefaultConfig.Logging.Level,
+		"Set logging level, could be info or debug")
+	config.Viper.BindPFlag("logging.level", StartCmd.Flags().Lookup("log-level"))
+	config.Viper.BindEnv("logging.level", "LOGGING_LEVEL")
+
+	StartCmd.Flags().StringVarP(&logFormat, "log-format", "", config.DefaultConfig.Logging.Format,
+		"Set logging format, could be console or json")
+	config.Viper.BindPFlag("logging.format", StartCmd.Flags().Lookup("log-format"))
+	config.Viper.BindEnv("logging.format", "LOGGING_FORMAT")
 }
 
 func initLog() {
