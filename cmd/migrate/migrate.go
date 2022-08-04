@@ -1,6 +1,8 @@
 package migrate
 
 import (
+	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/fs714/go-proj-boot/db/pgsql"
@@ -14,12 +16,13 @@ import (
 )
 
 var (
-	dbHost string
-	dbPort string
-	dbUser string
-	dbPass string
-	dbName string
-	number int
+	dbHost  string
+	dbPort  string
+	dbUser  string
+	dbPass  string
+	dbName  string
+	number  int
+	verbose bool
 )
 
 var StartCmd = &cobra.Command{
@@ -65,6 +68,7 @@ var StartShowCmd = &cobra.Command{
 
 func InitStartShowCmd() {
 	addDatabaseFlags(StartShowCmd)
+	StartShowCmd.Flags().BoolVarP(&verbose, "verbose", "", false, "Show migrate verbose message")
 }
 
 var StartUpCmd = &cobra.Command{
@@ -83,8 +87,8 @@ var StartUpCmd = &cobra.Command{
 
 func InitStartUpCmd() {
 	addDatabaseFlags(StartUpCmd)
-	StartUpCmd.Flags().IntVarP(&number, "number", "N", 1,
-		"Number of Migration steps, 0 means all")
+	StartUpCmd.Flags().IntVarP(&number, "number", "N", 1, "Number of Migration steps, 0 means all")
+	StartUpCmd.Flags().BoolVarP(&verbose, "verbose", "", false, "Show migrate verbose message")
 }
 
 var StartDownCmd = &cobra.Command{
@@ -103,8 +107,8 @@ var StartDownCmd = &cobra.Command{
 
 func InitStartDownCmd() {
 	addDatabaseFlags(StartDownCmd)
-	StartDownCmd.Flags().IntVarP(&number, "number", "N", 1,
-		"Number of Migration steps, 0 means all")
+	StartDownCmd.Flags().IntVarP(&number, "number", "N", 1, "Number of Migration steps, 0 means all")
+	StartDownCmd.Flags().BoolVarP(&verbose, "verbose", "", false, "Show migrate verbose message")
 }
 
 var StartGotoCmd = &cobra.Command{
@@ -123,6 +127,7 @@ var StartGotoCmd = &cobra.Command{
 
 func InitStartGotoCmd() {
 	addDatabaseFlags(StartGotoCmd)
+	StartGotoCmd.Flags().BoolVarP(&verbose, "verbose", "", false, "Show migrate verbose message")
 }
 
 var StartForceCmd = &cobra.Command{
@@ -141,6 +146,7 @@ var StartForceCmd = &cobra.Command{
 
 func InitStartForceCmd() {
 	addDatabaseFlags(StartForceCmd)
+	StartForceCmd.Flags().BoolVarP(&verbose, "verbose", "", false, "Show migrate verbose message")
 }
 
 func addDatabaseFlags(cmd *cobra.Command) {
@@ -173,6 +179,18 @@ func addDatabaseFlags(cmd *cobra.Command) {
 	config.Viper.BindEnv("database.name", "DATABASE_NAME")
 }
 
+type MigrateLog struct {
+	verbose bool
+}
+
+func (l *MigrateLog) Printf(format string, v ...interface{}) {
+	fmt.Fprintf(os.Stderr, format, v...)
+}
+
+func (l *MigrateLog) Verbose() bool {
+	return l.verbose
+}
+
 func getMigrateInstance() (*migrate.Migrate, error) {
 	err := pgsql.PostgreDbInitFromConfig()
 	if err != nil {
@@ -193,6 +211,8 @@ func getMigrateInstance() (*migrate.Migrate, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to new migrate instance")
 	}
+
+	m.Log = &MigrateLog{verbose: verbose}
 
 	return m, nil
 }
