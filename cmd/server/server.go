@@ -30,6 +30,10 @@ var StartCmd = &cobra.Command{
 	Use:          "server",
 	Short:        "Start http server",
 	SilenceUsage: true,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		initLog()
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return startServer()
 	},
@@ -63,6 +67,31 @@ func InitStartCmd() {
 		"Secret key for jwt")
 	config.Viper.BindPFlag("jwt.secret", StartCmd.Flags().Lookup("jwt-secret"))
 	config.Viper.BindEnv("jwt.secret", "JWT_SECRET")
+}
+
+func initLog() {
+	if config.Config.Logging.File == "" {
+		logger := log.New(os.Stderr, log.ParseFormat(config.Config.Logging.Format),
+			log.ParseLevel(config.Config.Logging.Level), true)
+		log.ResetCurrentLog(logger)
+	} else {
+		var tops = []log.TeeWithRotateOption{
+			{
+				Filename:   config.Config.Logging.File,
+				MaxSize:    config.Config.Logging.MaxSize,
+				MaxAge:     config.Config.Logging.MaxAge,
+				MaxBackups: config.Config.Logging.MaxBackups,
+				Compress:   config.Config.Logging.Compress,
+				Lef: func(lvl log.Level) bool {
+					return lvl >= log.ParseLevel(config.Config.Logging.Level)
+				},
+				F: log.ParseFormat(config.Config.Logging.Format),
+			},
+		}
+
+		logger := log.NewTeeWithRotate(tops, true)
+		log.ResetCurrentLog(logger)
+	}
 }
 
 func startServer() (err error) {
@@ -103,16 +132,14 @@ func startServer() (err error) {
 		go func(ctx context.Context) {
 			defer exitWg.Done()
 
-			select {
-			case <-ctx.Done():
-				cctx, ccancel := context.WithTimeout(context.Background(), 1*time.Second)
-				defer ccancel()
-				err := srv.Shutdown(cctx)
-				if err != nil {
-					log.Errorf("failed to close http server:\n%+v", err)
-				}
-				log.Infow("http server exit")
+			<-ctx.Done()
+			cctx, ccancel := context.WithTimeout(context.Background(), 1*time.Second)
+			defer ccancel()
+			err := srv.Shutdown(cctx)
+			if err != nil {
+				log.Errorf("failed to close http server:\n%+v", err)
 			}
+			log.Infow("http server exit")
 		}(ctx)
 	}
 
