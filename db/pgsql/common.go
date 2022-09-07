@@ -4,7 +4,7 @@ import (
 	"embed"
 	"time"
 
-	"github.com/fs714/go-proj-boot/pkg/utils/config"
+	"github.com/fs714/go-proj-boot/pkg/config"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"

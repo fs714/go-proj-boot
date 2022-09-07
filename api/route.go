@@ -4,7 +4,7 @@ import (
 	"github.com/fs714/go-proj-boot/api/middleware"
 	"github.com/fs714/go-proj-boot/api/v1/auth"
 	"github.com/fs714/go-proj-boot/api/v1/public"
-	"github.com/fs714/go-proj-boot/pkg/utils/config"
+	"github.com/fs714/go-proj-boot/pkg/config"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/pprof"

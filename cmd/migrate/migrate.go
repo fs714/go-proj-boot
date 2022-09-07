@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/fs714/go-proj-boot/db/pgsql"
-	"github.com/fs714/go-proj-boot/pkg/utils/config"
+	"github.com/fs714/go-proj-boot/pkg/config"
 	"github.com/fs714/go-proj-boot/pkg/utils/log"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"

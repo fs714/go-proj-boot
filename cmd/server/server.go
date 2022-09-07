@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/fs714/go-proj-boot/api"
-	"github.com/fs714/go-proj-boot/pkg/utils/config"
+	"github.com/fs714/go-proj-boot/pkg/config"
 	"github.com/fs714/go-proj-boot/pkg/utils/log"
 	"github.com/fs714/go-proj-boot/pkg/utils/version"
 	"github.com/pkg/errors"

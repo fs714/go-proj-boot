@@ -8,7 +8,7 @@ import (
 	cmd_migrate "github.com/fs714/go-proj-boot/cmd/migrate"
 	cmd_server "github.com/fs714/go-proj-boot/cmd/server"
 	cmd_version "github.com/fs714/go-proj-boot/cmd/version"
-	"github.com/fs714/go-proj-boot/pkg/utils/config"
+	"github.com/fs714/go-proj-boot/pkg/config"
 	"github.com/fs714/go-proj-boot/pkg/utils/log"
 	"github.com/fs714/go-proj-boot/pkg/utils/version"
 	"github.com/spf13/cobra"

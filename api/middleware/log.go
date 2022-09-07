@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/fs714/go-proj-boot/pkg/utils/config"
+	"github.com/fs714/go-proj-boot/pkg/config"
 	"github.com/fs714/go-proj-boot/pkg/utils/log"
 	"github.com/gin-gonic/gin"
 )
