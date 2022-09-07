@@ -153,12 +153,12 @@ func addDatabaseFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().SortFlags = false
 	cmd.Flags().SortFlags = false
 
-	cmd.Flags().StringVarP(&dbHost, "host", "l", config.DefaultConfig.Database.Host,
+	cmd.Flags().StringVarP(&dbHost, "host", "l", config.DefaultConfig.Database.Master.Nodes[0].Host,
 		"Database server listening address")
 	config.Viper.BindPFlag("database.host", cmd.Flags().Lookup("host"))
 	config.Viper.BindEnv("database.port", "DATABASE_HOST")
 
-	cmd.Flags().StringVarP(&dbPort, "port", "p", config.DefaultConfig.Database.Port,
+	cmd.Flags().StringVarP(&dbPort, "port", "p", config.DefaultConfig.Database.Master.Nodes[0].Port,
 		"Database server listening port")
 	config.Viper.BindPFlag("database.port", cmd.Flags().Lookup("port"))
 	config.Viper.BindEnv("database.port", "DATABASE_PORT")

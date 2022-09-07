@@ -19,8 +19,8 @@ var (
 
 func PostgreDbInitFromConfig() (err error) {
 	err = PostgreDbInit(
-		config.Config.Database.Host,
-		config.Config.Database.Port,
+		config.Config.Database.Master.Nodes[0].Host,
+		config.Config.Database.Master.Nodes[0].Port,
 		config.Config.Database.User,
 		config.Config.Database.Pass,
 		config.Config.Database.Name,
@@ -61,9 +61,9 @@ func doPostgreDbInit(host string, port string, user string, password string, dbN
 		return errors.Wrap(err, "failed to connection to PostgreSql DB")
 	}
 
-	DB.DB.SetMaxOpenConns(config.Config.Database.MaxOpenConnection)
-	DB.DB.SetMaxIdleConns(config.Config.Database.MaxIdleConnection)
-	DB.DB.SetConnMaxLifetime(time.Duration(config.Config.Database.MaxLifeTime) * time.Second)
+	DB.DB.SetMaxOpenConns(config.Config.Database.Master.MaxOpenConnection)
+	DB.DB.SetMaxIdleConns(config.Config.Database.Master.MaxIdleConnection)
+	DB.DB.SetConnMaxLifetime(time.Duration(config.Config.Database.Master.MaxLifeTime) * time.Second)
 
 	err = DB.Ping()
 	if err != nil {

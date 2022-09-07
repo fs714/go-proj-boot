@@ -30,14 +30,31 @@ func GetDefaultConfig() config {
 			WriteTimeout: 60,
 		},
 		Database: database{
-			Host:              "127.0.0.1",
-			Port:              "5432",
-			User:              "mikasa",
-			Pass:              "mikasa",
-			Name:              "titan",
-			MaxOpenConnection: 2,
-			MaxIdleConnection: 1,
-			MaxLifeTime:       21600,
+			User: "mikasa",
+			Pass: "mikasa",
+			Name: "titan",
+			Master: dbNodeGroup{
+				MaxOpenConnection: 2,
+				MaxIdleConnection: 1,
+				MaxLifeTime:       21600,
+				Nodes: []dbNode{
+					{
+						Host: "127.0.0.1",
+						Port: "5432",
+					},
+				},
+			},
+			Slave: dbNodeGroup{
+				MaxOpenConnection: 2,
+				MaxIdleConnection: 1,
+				MaxLifeTime:       21600,
+				Nodes: []dbNode{
+					{
+						Host: "127.0.0.1",
+						Port: "5432",
+					},
+				},
+			},
 		},
 		Jwt: jwt{
 			Secret:         "348eee0c-4c3a-4ddc-a054-a563d8f9396b",
@@ -73,15 +90,24 @@ type httpServer struct {
 	WriteTimeout int    `mapstructure:"write_timeout"`
 }
 
+type dbNode struct {
+	Host string `mapstructure:"host"`
+	Port string `mapstructure:"port"`
+}
+
+type dbNodeGroup struct {
+	MaxOpenConnection int      `mapstructure:"max_open_connection"`
+	MaxIdleConnection int      `mapstructure:"max_idle_connection"`
+	MaxLifeTime       int      `mapstructure:"max_life_time"`
+	Nodes             []dbNode `mapstructure:"nodes"`
+}
+
 type database struct {
-	Host              string `mapstructure:"host"`
-	Port              string `mapstructure:"port"`
-	User              string `mapstructure:"user"`
-	Pass              string `mapstructure:"pass"`
-	Name              string `mapstructure:"name"`
-	MaxOpenConnection int    `mapstructure:"max_open_connection"`
-	MaxIdleConnection int    `mapstructure:"max_idle_connection"`
-	MaxLifeTime       int    `mapstructure:"max_life_time"`
+	User   string      `mapstructure:"user"`
+	Pass   string      `mapstructure:"pass"`
+	Name   string      `mapstructure:"name"`
+	Master dbNodeGroup `mapstructure:"master"`
+	Slave  dbNodeGroup `mapstructure:"slave"`
 }
 
 type jwt struct {
