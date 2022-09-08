@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/fs714/go-proj-boot/pkg/config"
+	"github.com/fs714/go-proj-boot/pkg/utils/log"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -44,6 +45,7 @@ func PostgreDbInit(host string, port string, user string, password string, dbNam
 
 		err = doPostgreDbInit(host, port, user, password, dbName)
 		if err != nil {
+			log.Infow("failed to connect to db", "host", host, "port", port, "count", count)
 			time.Sleep(10 * time.Second)
 			continue
 		} else {
