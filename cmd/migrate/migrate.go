@@ -192,12 +192,12 @@ func (l *MigrateLog) Verbose() bool {
 }
 
 func getMigrateInstance() (*migrate.Migrate, error) {
-	err := pgsql.PostgreDbInitFromConfig()
+	err := pgsql.InitSqlxFromConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to init postgre from config")
 	}
 
-	driver, err := postgres.WithInstance(pgsql.DB.DB, &postgres.Config{})
+	driver, err := postgres.WithInstance(pgsql.DBSqlx.DB, &postgres.Config{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get migrate db driver")
 	}

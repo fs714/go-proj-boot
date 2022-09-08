@@ -11,15 +11,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-var DB *sqlx.DB
+var DBSqlx *sqlx.DB
 
 var (
 	//go:embed migrations/*.sql
 	MigratesFs embed.FS
 )
 
-func PostgreDbInitFromConfig() (err error) {
-	err = PostgreDbInit(
+func InitSqlxFromConfig() (err error) {
+	err = InitSqlx(
 		config.Config.Database.Master.Nodes[0].Host,
 		config.Config.Database.Master.Nodes[0].Port,
 		config.Config.Database.User,
@@ -35,7 +35,7 @@ func PostgreDbInitFromConfig() (err error) {
 	return
 }
 
-func PostgreDbInit(host string, port string, user string, password string, dbName string) (err error) {
+func InitSqlx(host string, port string, user string, password string, dbName string) (err error) {
 	count := 0
 	for {
 		if count >= 30 {
@@ -43,7 +43,7 @@ func PostgreDbInit(host string, port string, user string, password string, dbNam
 		}
 		count++
 
-		err = doPostgreDbInit(host, port, user, password, dbName)
+		err = doInitSqlx(host, port, user, password, dbName)
 		if err != nil {
 			log.Infow("failed to connect to db", "host", host, "port", port, "count", count)
 			time.Sleep(10 * time.Second)
@@ -56,18 +56,18 @@ func PostgreDbInit(host string, port string, user string, password string, dbNam
 	return
 }
 
-func doPostgreDbInit(host string, port string, user string, password string, dbName string) (err error) {
+func doInitSqlx(host string, port string, user string, password string, dbName string) (err error) {
 	dbUrl := "postgres://" + user + ":" + password + "@" + host + ":" + port + "/" + dbName + "?sslmode=disable"
-	DB, err = sqlx.Connect("pgx", dbUrl)
+	DBSqlx, err = sqlx.Connect("pgx", dbUrl)
 	if err != nil {
 		return errors.Wrap(err, "failed to connection to PostgreSql DB")
 	}
 
-	DB.DB.SetMaxOpenConns(config.Config.Database.Master.MaxOpenConnection)
-	DB.DB.SetMaxIdleConns(config.Config.Database.Master.MaxIdleConnection)
-	DB.DB.SetConnMaxLifetime(time.Duration(config.Config.Database.Master.MaxLifeTime) * time.Second)
+	DBSqlx.DB.SetMaxOpenConns(config.Config.Database.Master.MaxOpenConnection)
+	DBSqlx.DB.SetMaxIdleConns(config.Config.Database.Master.MaxIdleConnection)
+	DBSqlx.DB.SetConnMaxLifetime(time.Duration(config.Config.Database.Master.MaxLifeTime) * time.Second)
 
-	err = DB.Ping()
+	err = DBSqlx.Ping()
 	if err != nil {
 		return errors.Wrap(err, "failed to ping PostgreSql DB")
 	}

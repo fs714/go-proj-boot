@@ -4,17 +4,17 @@ import "github.com/spf13/viper"
 
 var (
 	Viper         *viper.Viper
-	DefaultConfig config = GetDefaultConfig()
-	Config        config = DefaultConfig
+	DefaultConfig Configuration = GetDefaultConfig()
+	Config        Configuration = DefaultConfig
 )
 
-func GetDefaultConfig() config {
-	return config{
-		Common: common{
+func GetDefaultConfig() Configuration {
+	return Configuration{
+		Common: Common{
 			RunMode:   "release",
 			Profiling: false,
 		},
-		Logging: logging{
+		Logging: Logging{
 			File:       "",
 			Level:      "info",
 			Format:     "console",
@@ -23,32 +23,32 @@ func GetDefaultConfig() config {
 			MaxBackups: 16,
 			Compress:   true,
 		},
-		HttpServer: httpServer{
+		HttpServer: HttpServer{
 			Host:         "0.0.0.0",
 			Port:         "9500",
 			ReadTimeout:  60,
 			WriteTimeout: 60,
 		},
-		Database: database{
+		Database: Database{
 			User: "mikasa",
 			Pass: "mikasa",
 			Name: "titan",
-			Master: dbNodeGroup{
+			Master: DBNodeGroup{
 				MaxOpenConnection: 2,
 				MaxIdleConnection: 1,
 				MaxLifeTime:       21600,
-				Nodes: []dbNode{
+				Nodes: []DBNode{
 					{
 						Host: "127.0.0.1",
 						Port: "5432",
 					},
 				},
 			},
-			Slave: dbNodeGroup{
+			Slave: DBNodeGroup{
 				MaxOpenConnection: 2,
 				MaxIdleConnection: 1,
 				MaxLifeTime:       21600,
-				Nodes: []dbNode{
+				Nodes: []DBNode{
 					{
 						Host: "127.0.0.1",
 						Port: "5432",
@@ -56,7 +56,7 @@ func GetDefaultConfig() config {
 				},
 			},
 		},
-		Jwt: jwt{
+		Jwt: Jwt{
 			Secret:         "348eee0c-4c3a-4ddc-a054-a563d8f9396b",
 			ExpiresTime:    3600,
 			BufferTime:     86400,
@@ -68,12 +68,12 @@ func GetDefaultConfig() config {
 	}
 }
 
-type common struct {
+type Common struct {
 	RunMode   string `mapstructure:"run_mode"`
 	Profiling bool   `mapstructure:"profiling"`
 }
 
-type logging struct {
+type Logging struct {
 	File       string `mapstructure:"file"`
 	Level      string `mapstructure:"level"`
 	Format     string `mapstructure:"format"`
@@ -83,34 +83,34 @@ type logging struct {
 	Compress   bool   `mapstructure:"compress"`
 }
 
-type httpServer struct {
+type HttpServer struct {
 	Host         string `mapstructure:"host"`
 	Port         string `mapstructure:"port"`
 	ReadTimeout  int    `mapstructure:"read_timeout"`
 	WriteTimeout int    `mapstructure:"write_timeout"`
 }
 
-type dbNode struct {
+type DBNode struct {
 	Host string `mapstructure:"host"`
 	Port string `mapstructure:"port"`
 }
 
-type dbNodeGroup struct {
+type DBNodeGroup struct {
 	MaxOpenConnection int      `mapstructure:"max_open_connection"`
 	MaxIdleConnection int      `mapstructure:"max_idle_connection"`
 	MaxLifeTime       int      `mapstructure:"max_life_time"`
-	Nodes             []dbNode `mapstructure:"nodes"`
+	Nodes             []DBNode `mapstructure:"nodes"`
 }
 
-type database struct {
+type Database struct {
 	User   string      `mapstructure:"user"`
 	Pass   string      `mapstructure:"pass"`
 	Name   string      `mapstructure:"name"`
-	Master dbNodeGroup `mapstructure:"master"`
-	Slave  dbNodeGroup `mapstructure:"slave"`
+	Master DBNodeGroup `mapstructure:"master"`
+	Slave  DBNodeGroup `mapstructure:"slave"`
 }
 
-type jwt struct {
+type Jwt struct {
 	Secret         string `mapstructure:"secret"`
 	ExpiresTime    int    `mapstructure:"expires_time"`
 	BufferTime     int    `mapstructure:"buffer_time"`
@@ -120,10 +120,10 @@ type jwt struct {
 	SecurityCookie bool   `mapstructure:"security_cookie"`
 }
 
-type config struct {
-	Common     common     `mapstructure:"common"`
-	Logging    logging    `mapstructure:"logging"`
-	HttpServer httpServer `mapstructure:"http_server"`
-	Database   database   `mapstructure:"database"`
-	Jwt        jwt        `mapstructure:"jwt"`
+type Configuration struct {
+	Common     Common     `mapstructure:"common"`
+	Logging    Logging    `mapstructure:"logging"`
+	HttpServer HttpServer `mapstructure:"http_server"`
+	Database   Database   `mapstructure:"database"`
+	Jwt        Jwt        `mapstructure:"jwt"`
 }
