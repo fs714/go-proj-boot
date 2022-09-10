@@ -58,6 +58,7 @@ func InitSqlx(host string, port string, user string, password string, dbName str
 
 func doInitSqlx(host string, port string, user string, password string, dbName string) (err error) {
 	dbUrl := "postgres://" + user + ":" + password + "@" + host + ":" + port + "/" + dbName + "?sslmode=disable"
+	log.Infow("database", "url", dbUrl)
 	DBSqlx, err = sqlx.Connect("pgx", dbUrl)
 	if err != nil {
 		return errors.Wrap(err, "failed to connection to PostgreSql DB")
