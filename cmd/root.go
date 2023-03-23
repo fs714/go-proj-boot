@@ -66,7 +66,8 @@ func initConfig() {
 
 		dir, err := os.Getwd()
 		if err != nil {
-			fmt.Printf("failed to get current dir with err: %s\n", err.Error())
+			fmt.Printf("failed to get current dir with err: %v\n", err)
+			os.Exit(1)
 		}
 
 		config.Viper.AddConfigPath("/etc/go-proj-boot")
@@ -75,15 +76,13 @@ func initConfig() {
 
 	err := config.Viper.ReadInConfig()
 	if err != nil {
-		fmt.Printf("failed to read configuration file, path: %s, err: %s\n",
-			config.Viper.ConfigFileUsed(), err.Error())
+		fmt.Printf("failed to read configuration file, path: %s, err: %v\n", config.Viper.ConfigFileUsed(), err)
 		os.Exit(1)
 	}
 
 	err = config.Viper.Unmarshal(&config.Config)
 	if err != nil {
-		fmt.Printf("failed to unmarshal configuration to structure, path: %s, err: %s\n",
-			config.Viper.ConfigFileUsed(), err.Error())
+		fmt.Printf("failed to unmarshal config to struct, path: %s, err: %v\n", config.Viper.ConfigFileUsed(), err)
 		os.Exit(1)
 	}
 }

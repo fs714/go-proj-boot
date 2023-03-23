@@ -28,5 +28,9 @@ runtime/*
 # VIM
 *.swp
 
+# Python Byte-compiled
+__pycache__/
+*.py[cod]
+
 # Bin
 bin/
